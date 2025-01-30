@@ -1,5 +1,6 @@
 const User = require('../Models/User'); // Ensure this is correct
 const Admin = require('../Models/Admin');
+
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 
@@ -8,7 +9,7 @@ module.exports.register = async function (req, res) {
     // Creat    e the new user
     const user = await User.create(req.body);
 
-    const token = jwt.sign({ id: user._id }, 'yourSecretKey', {
+    const token = jwt.sign({ id: user._id }, 'IAmUser', {
       expiresIn: '1h',
     });
     const userid1 = user.userid;
@@ -108,10 +109,10 @@ module.exports.adminlogin = async (req, res) => {
       });
     }
 
-    // Generate a JWT token
+    // Generate a JWT token and include isAdmin in the token payload
     const token = jwt.sign(
-      { id: admin._id, email: admin.email },
-      'yourSecretKey',
+      { id: admin._id, email: admin.email, isAdmin: true }, // Add isAdmin here
+      'IAmAdmin',
       {
         expiresIn: '1h',
       }
@@ -131,6 +132,7 @@ module.exports.adminlogin = async (req, res) => {
     });
   }
 };
+
 module.exports.verifytoken = async (req, res) => {
   const { token } = req.body;
 
@@ -138,7 +140,24 @@ module.exports.verifytoken = async (req, res) => {
     return res.status(400).json({ valid: false });
   }
 
-  jwt.verify(token, 'yourSecretKey', (err, decoded) => {
+  jwt.verify(token, 'IAmUser', (err, decoded) => {
+    if (err) {
+      return res.status(401).json({ valid: false });
+    }
+
+    // Optionally, check if the user still exists or any additional validation
+    return res.status(200).json({ valid: true });
+  });
+};
+
+module.exports.verifytokenadmin = (req, res) => {
+  const { token } = req.body;
+
+  if (!token) {
+    return res.status(400).json({ valid: false });
+  }
+
+  jwt.verify(token, 'IAmAdmin', (err, decoded) => {
     if (err) {
       return res.status(401).json({ valid: false });
     }
