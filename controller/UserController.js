@@ -9,7 +9,13 @@ module.exports.register = async function (req, res) {
     // Creat    e the new user
     const user = await User.create(req.body);
 
-    const token = jwt.sign({ id: user._id }, 'IAmUser', { expiresIn: '1h' });
+    const token = jwt.sign(
+      { id: user._id, email: user.email, isUser: true }, // Add isAdmin here
+      'IAmUser',
+      {
+        expiresIn: '1h',
+      }
+    );
     const userid1 = user.userid;
     return res.status(200).json({
       success: true,
@@ -59,7 +65,13 @@ module.exports.login = async (req, res) => {
     }
 
     // Generate a JWT token
-    const token = jwt.sign({ id: user._id }, 'IAmUser', { expiresIn: '1h' });
+    const token = jwt.sign(
+      { id: user._id, email: user.email, isUser: true }, // Add isAdmin here
+      'IAmUser',
+      {
+        expiresIn: '1h',
+      }
+    );
 
     res.status(200).json({
       success: true,
