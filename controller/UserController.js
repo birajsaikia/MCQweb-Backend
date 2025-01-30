@@ -9,9 +9,7 @@ module.exports.register = async function (req, res) {
     // Creat    e the new user
     const user = await User.create(req.body);
 
-    const token = jwt.sign({ id: user._id }, 'IAmUser', {
-      expiresIn: '1h',
-    });
+    const token = jwt.sign({ id: user._id }, 'IAmUser', { expiresIn: '1h' });
     const userid1 = user.userid;
     return res.status(200).json({
       success: true,
@@ -61,9 +59,7 @@ module.exports.login = async (req, res) => {
     }
 
     // Generate a JWT token
-    const token = jwt.sign({ id: user._id }, 'IAmUser', {
-      expiresIn: '1h',
-    });
+    const token = jwt.sign({ id: user._id }, 'IAmUser', { expiresIn: '1h' });
 
     res.status(200).json({
       success: true,
@@ -136,10 +132,13 @@ module.exports.adminlogin = async (req, res) => {
 module.exports.verifytoken = async (req, res) => {
   const token = req.headers['authorization']?.split(' ')[1]; // Extract token from Bearer <token>
 
+  // If no token is provided, return an error
   if (!token) {
     return res.status(400).json({ valid: false, msg: 'No token provided' });
   }
 
+  // Verify the token
+  // In your verifytoken function
   jwt.verify(token, 'IAmUser', (err, decoded) => {
     if (err) {
       console.error('Token Verification Error:', err);
@@ -148,9 +147,8 @@ module.exports.verifytoken = async (req, res) => {
         .json({ valid: false, msg: 'Token verification failed' });
     }
 
-    // Token is valid, you can optionally check if the user still exists, etc.
     console.log('Decoded Token:', decoded);
-    return res.status(200).json({ valid: true });
+    return res.status(200).json({ valid: true, msg: 'Token is valid' });
   });
 };
 
