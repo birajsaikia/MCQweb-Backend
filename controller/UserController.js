@@ -130,25 +130,19 @@ module.exports.adminlogin = async (req, res) => {
 };
 
 module.exports.verifytoken = async (req, res) => {
-  const token = req.headers['authorization']?.split(' ')[1]; // Extract token from Bearer <token>
+  const { token } = req.body;
 
-  // If no token is provided, return an error
   if (!token) {
-    return res.status(400).json({ valid: false, msg: 'No token provided' });
+    return res.status(400).json({ valid: false });
   }
 
-  // Verify the token
-  // In your verifytoken function
   jwt.verify(token, 'IAmUser', (err, decoded) => {
     if (err) {
-      console.error('Token Verification Error:', err);
-      return res
-        .status(401)
-        .json({ valid: false, msg: 'Token verification failed' });
+      return res.status(401).json({ valid: false });
     }
 
-    console.log('Decoded Token:', decoded);
-    return res.status(200).json({ valid: true, msg: 'Token is valid' });
+    // Optionally, check if the user still exists or any additional validation
+    return res.status(200).json({ valid: true });
   });
 };
 
