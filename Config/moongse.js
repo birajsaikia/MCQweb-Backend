@@ -1,9 +1,9 @@
 const mongoose = require('mongoose');
-mongoose.connect('mongodb://0.0.0.0:27017/MCQ');
-// const DB =
-//   'mongodb+srv://birajjyo2:uhnekDGnu6zglcFo@cluster0.kybvwzo.mongodb.net/MCQ';
+// mongoose.connect('mongodb://0.0.0.0:27017/MCQ');
+const DB =
+  'mongodb+srv://birajjyo2:uhnekDGnu6zglcFo@cluster0.kybvwzo.mongodb.net/MCQ';
 
-// mongoose.connect(DB);
+mongoose.connect(DB);
 
 const db = mongoose.connection;
 
