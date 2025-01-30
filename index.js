@@ -4,7 +4,8 @@ const connectDB = require('./Config/moongse.js');
 const user = require('./Router/User.js');
 // const userRoutes = require('./router/user');
 const app = express();
-
+const cors = require('cors');
+app.use(cors({ origin: 'https://mc-qweb-b9hw.vercel.app/' }));
 app.use(cors());
 app.use(express.json());
 
