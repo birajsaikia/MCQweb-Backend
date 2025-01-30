@@ -61,7 +61,7 @@ module.exports.login = async (req, res) => {
     }
 
     // Generate a JWT token
-    const token = jwt.sign({ id: user._id }, 'yourSecretKey', {
+    const token = jwt.sign({ id: user._id }, 'IAmUser', {
       expiresIn: '1h',
     });
 
@@ -134,18 +134,22 @@ module.exports.adminlogin = async (req, res) => {
 };
 
 module.exports.verifytoken = async (req, res) => {
-  const { token } = req.body;
+  const token = req.headers['authorization']?.split(' ')[1]; // Extract token from Bearer <token>
 
   if (!token) {
-    return res.status(400).json({ valid: false });
+    return res.status(400).json({ valid: false, msg: 'No token provided' });
   }
 
   jwt.verify(token, 'IAmUser', (err, decoded) => {
     if (err) {
-      return res.status(401).json({ valid: false });
+      console.error('Token Verification Error:', err);
+      return res
+        .status(401)
+        .json({ valid: false, msg: 'Token verification failed' });
     }
 
-    // Optionally, check if the user still exists or any additional validation
+    // Token is valid, you can optionally check if the user still exists, etc.
+    console.log('Decoded Token:', decoded);
     return res.status(200).json({ valid: true });
   });
 };
