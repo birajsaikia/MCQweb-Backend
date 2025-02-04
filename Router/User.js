@@ -7,10 +7,6 @@ const {
   verifytoken,
   verifytokenadmin,
 } = require('../controller/UserController');
-const {
-  addQuestionsBatch,
-  getCourse,
-} = require('../controller/CrouseController');
 
 const admin = require('./Admin');
 
@@ -21,9 +17,5 @@ router.post('/adminlogin', adminlogin);
 router.post('/verify-token', verifytoken);
 router.use('/admin', admin);
 router.post('/verify-tokenadmin', verifytokenadmin);
-
-// Course Routes
-router.post('/course/:id/add-question', addQuestionsBatch); // Renamed couse to course
-router.get('/course/:id', getCourse); // Renamed couse to course
 
 module.exports = router;
