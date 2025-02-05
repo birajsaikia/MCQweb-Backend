@@ -132,10 +132,7 @@ exports.getQuestions = async (req, res) => {
     if (!subject) return res.status(404).json({ error: 'Subject not found' });
 
     const coSubject = subject.coSubjects.id(coSubjectId);
-    console.log("Course:", course.name);
-    console.log("Subject:", subject.name);
-    console.log("All Co-Subject IDs:", subject.coSubjects.map(cs => cs._id));
-    console.log("All Co-Subject myid values:", subject.coSubjects.map(cs => cs.myid));
+   
     
     if (!coSubject)
       return res.status(404).json({ error: 'Co-Subject not found' });
