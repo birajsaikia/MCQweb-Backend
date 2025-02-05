@@ -121,19 +121,26 @@ exports.addQuestion = async (req, res) => {
 // Get All Questions for a Specific Co-Subject
 exports.getQuestions = async (req, res) => {
   try {
-    const { courseId, subjectId, cosubjectId } = req.params;
-
+    const { courseId, subjectId, coSubjectId } = req.params;
+    console.log('Course ID:', courseId);
+    console.log('Subject ID:', subjectId);
+    console.log('Co-Subject ID:', coSubjectId);
     const course = await Course.findById(courseId);
     if (!course) return res.status(404).json({ error: 'Course not found' });
 
     const subject = course.subjects.id(subjectId);
     if (!subject) return res.status(404).json({ error: 'Subject not found' });
 
-    const coSubject = subject.coSubjects.id(cosubjectId);
+    const coSubject = subject.coSubjects.id(coSubjectId);
+    console.log("Course:", course.name);
+    console.log("Subject:", subject.name);
+    console.log("All Co-Subject IDs:", subject.coSubjects.map(cs => cs._id));
+    console.log("All Co-Subject myid values:", subject.coSubjects.map(cs => cs.myid));
+    
     if (!coSubject)
       return res.status(404).json({ error: 'Co-Subject not found' });
 
-    return res.status(200).json(coSubject.questions);
+    return res.status(200).json({ quations: coSubject.questions });
   } catch (error) {
     console.error('Error fetching questions:', error);
     res.status(500).json({ error: 'Internal server error' });
@@ -210,8 +217,10 @@ exports.getCoSubject = async (req, res) => {
   try {
     const courseId = req.params.courseId; // Extract courseId from URL params
     const subjectId = req.params.subjectId; // Extract subjectId from URL params
+    console.log(courseId, subjectId);
     const course = await Course.findById(courseId); // Fetch the course by courseId
     const subject = course.subjects.id(subjectId); // Fetch the subject by subject
+    console.log(course.name, subject.name);
 
     if (!subject) {
       return res.status(404).json({ message: 'Course not found' });
@@ -226,6 +235,7 @@ exports.getCoSubject = async (req, res) => {
     res
       .status(200)
       .json({ cosubject: subject.coSubjects, subjectName: subject.name }); // Return the subjects array for the course
+    // console.log(subject.coSubjects);
   } catch (error) {
     console.error('Error fetching subjects:', error);
     res
