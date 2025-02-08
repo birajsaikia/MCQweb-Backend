@@ -3,7 +3,7 @@ const path = require('path');
 const fs = require('fs');
 
 // Ensure the `uploads/` folder exists
-const uploadDir = path.join(__dirname, '../../frontent/src/ImageCourse');
+const uploadDir = path.join(__dirname, '/uploads');
 if (!fs.existsSync(uploadDir)) {
   fs.mkdirSync(uploadDir, { recursive: true });
 }
