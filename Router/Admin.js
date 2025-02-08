@@ -1,6 +1,7 @@
 const express = require('express');
 const {
   addCourse,
+  delateCourse,
   addSubject,
   addCoSubject,
   addQuestion,
@@ -9,10 +10,12 @@ const {
   getCoSubject,
   getQuestions,
 } = require('../controller/CrouseController');
+const upload = require('../Models/upload');
 
 const router = express.Router();
 
-router.post('/add-course', addCourse);
+router.post('/add-course', upload.single('image'), addCourse);
+router.delete('/delate-course/:id', delateCourse);
 router.post('/addsubject/:courseId', addSubject);
 router.get('/subject/:courseId', getSubject);
 router.get('/cosubject/:courseId/:subjectId', getCoSubject);

@@ -24,6 +24,7 @@ const subjectSchema = new mongoose.Schema({
 const courseSchema = new mongoose.Schema({
   name: { type: String, required: true },
   description: { type: String },
+  image: { type: String },
   subjects: [subjectSchema], // Array of subjects
   createdAt: { type: Date, default: Date.now },
 });

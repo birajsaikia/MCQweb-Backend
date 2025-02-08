@@ -1,17 +1,51 @@
 const Course = require('../Models/Course');
-
 // ✅ Add a new course
 exports.addCourse = async (req, res) => {
   try {
-    const { name, description } = req.body;
-    const course = new Course({ name, description });
+    console.log('Request body:', req.body);
+    console.log('Uploaded file:', req.file); // Check if file is received
+
+    if (!req.file) {
+      return res.status(400).json({ message: 'No file uploaded' });
+    }
+
+    // Save the full URL to the image
+    const imageUrl = req.file.filename;
+    const course = new Course({
+      name: req.body.name,
+      description: req.body.description,
+      image: imageUrl, // Save the full URL in the DB
+    });
+
     await course.save();
     res.status(201).json({ message: 'Course added successfully', course });
   } catch (error) {
-    res.status(500).json({ message: 'Error adding course', error });
+    console.error('Error adding course:', error);
+    res
+      .status(500)
+      .json({ message: 'Error adding course', error: error.message });
   }
 };
+exports.delateCourse = async (req, res) => {
+  try {
+    const courseId = req.params.id;
+    console.log(courseId);
+    // Find the course by ID and delete it
+    const course = await Course.findByIdAndDelete(courseId);
 
+    if (!course) {
+      return res.status(404).json({ message: 'Course not found' });
+    }
+
+    // Return success message
+    res.status(200).json({ message: 'Course deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting course:', error);
+    res
+      .status(500)
+      .json({ message: 'Error deleting course', error: error.message });
+  }
+};
 // ✅ Add a subject to a course
 exports.addSubject = async (req, res) => {
   try {
@@ -122,9 +156,7 @@ exports.addQuestion = async (req, res) => {
 exports.getQuestions = async (req, res) => {
   try {
     const { courseId, subjectId, coSubjectId } = req.params;
-    console.log('Course ID:', courseId);
-    console.log('Subject ID:', subjectId);
-    console.log('Co-Subject ID:', coSubjectId);
+
     const course = await Course.findById(courseId);
     if (!course) return res.status(404).json({ error: 'Course not found' });
 
@@ -132,8 +164,7 @@ exports.getQuestions = async (req, res) => {
     if (!subject) return res.status(404).json({ error: 'Subject not found' });
 
     const coSubject = subject.coSubjects.id(coSubjectId);
-   
-    
+
     if (!coSubject)
       return res.status(404).json({ error: 'Co-Subject not found' });
 
@@ -177,11 +208,21 @@ exports.deleteQuestion = async (req, res) => {
 exports.getCourses = async (req, res) => {
   try {
     const courses = await Course.find();
-    res.status(200).json(courses);
+
+    // Modify each course object to include the full image URL
+    const updatedCourses = courses.map((course) => ({
+      _id: course._id,
+      name: course.name,
+      description: course.description,
+      image: `${req.protocol}://${req.get('host')}/uploads/${course.image}`, // Full URL
+    }));
+
+    res.status(200).json(updatedCourses);
   } catch (error) {
     res.status(500).json({ message: 'Error fetching courses', error });
   }
 };
+
 exports.getSubject = async (req, res) => {
   try {
     const courseId = req.params.courseId; // Extract courseId from URL params
