@@ -1,23 +1,7 @@
 const multer = require('multer');
-const path = require('path');
-const fs = require('fs');
 
-// Ensure the `uploads/` folder exists
-const uploadDir = path.join(__dirname, '../uploads');
-if (!fs.existsSync(uploadDir)) {
-  fs.mkdirSync(uploadDir, { recursive: true });
-}
-
-// Multer storage configuration
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, uploadDir); // Store files in the 'uploads/' directory
-  },
-  filename: (req, file, cb) => {
-    const uniqueName = `${Date.now()}-${file.originalname}`;
-    cb(null, uniqueName); // Ensure unique filenames
-  },
-});
+// Multer memory storage configuration
+const storage = multer.memoryStorage(); // Store files in memory instead of disk
 
 // File filter: Accept only images
 const fileFilter = (req, file, cb) => {
@@ -29,7 +13,7 @@ const fileFilter = (req, file, cb) => {
   }
 };
 
-// Multer upload instance
+// Multer upload instance with memory storage
 const upload = multer({
   storage,
   fileFilter,
