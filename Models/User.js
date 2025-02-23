@@ -1,43 +1,42 @@
 const mongoose = require('mongoose');
-const bcrypt = require('bcryptjs');
 
-const userSchema = new mongoose.Schema(
-  {
-    name: {
-      type: String,
-      required: [true, 'Name is required'],
-      minlength: [3, 'Name must be at least 3 characters'],
-      maxlength: [20, 'Name cannot exceed 20 characters'],
-      trim: true,
-    },
-    email: {
-      type: String,
-      required: [true, 'Email is required'],
-      unique: true,
-      trim: true,
-      lowercase: true,
-      match: [/.+@.+\..+/, 'Invalid email format'],
-    },
-    password: {
-      type: String,
-      required: [true, 'Password is required'],
-      minlength: [6, 'Password must be at least 6 characters'],
-    },
+const UserSchema = new mongoose.Schema({
+  name: {
+    type: String,
+    required: true,
   },
-  { timestamps: true }
-);
-
-// Hash password before saving user
-userSchema.pre('save', async function (next) {
-  if (!this.isModified('password')) return next();
-  this.password = await bcrypt.hash(this.password, 10);
-  next();
+  email: {
+    type: String,
+    required: true,
+    unique: true,
+  },
+  password: {
+    type: String,
+    required: true,
+  },
+  referralCode: {
+    type: String,
+    unique: true,
+    required: true,
+  },
+  referredBy: {
+    type: String, // Store the referrer's email or referral code
+    default: null,
+  },
+  referralCount: {
+    type: Number,
+    default: 0, // Number of successful referrals
+  },
+  totalAttendedQuestions: {
+    type: Number,
+    default: 0,
+  },
+  correctAnswers: {
+    type: Number,
+    default: 0,
+  },
 });
 
-// Compare passwords
-userSchema.methods.comparePassword = async function (enteredPassword) {
-  return await bcrypt.compare(enteredPassword, this.password);
-};
+const User = mongoose.model('User', UserSchema);
 
-const User = mongoose.model('User', userSchema);
 module.exports = User;

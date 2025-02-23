@@ -99,15 +99,12 @@ exports.addCoSubject = async (req, res) => {
     res.status(500).json({ message: 'Error adding co-subject', error });
   }
 };
-
-// ✅ Add a question to a co-subject
 exports.addQuestion = async (req, res) => {
   try {
     console.log('Request received at addQuestion API');
     console.log('Request body:', req.body);
-    console.log('Request params:', req.params);
 
-    const { courseId, subjectId, coSubjectId } = req.params;
+    // Extract the questions array from the request body
     const { questions } = req.body;
 
     if (!questions || !Array.isArray(questions) || questions.length === 0) {
@@ -115,34 +112,78 @@ exports.addQuestion = async (req, res) => {
       return res.status(400).json({ message: 'Questions array is required!' });
     }
 
+    // Initialize an empty array to store unique course IDs (in case multiple questions belong to different courses)
+    const courseIds = [];
+
+    // Loop through each question and extract the courseId
+    questions.forEach((question) => {
+      const courseId = question.courseId; // Extract courseId from each question
+      if (courseId && !courseIds.includes(courseId)) {
+        courseIds.push(courseId); // Add the courseId to the array if it's not already present
+      }
+    });
+
+    // If multiple courseIds are found, handle the scenario or just pick the first one
+    if (courseIds.length === 0) {
+      return res
+        .status(400)
+        .json({ message: 'No valid courseId found in the questions' });
+    }
+
+    // Assuming you want to use the first courseId for processing
+    const courseId = courseIds[0];
+    console.log('Using Course ID:', courseId);
+
+    // Find the course based on the courseId
     const course = await Course.findById(courseId);
     if (!course) {
       console.error('Course not found:', courseId);
       return res.status(404).json({ message: 'Course not found' });
     }
 
-    const subject = course.subjects.id(subjectId);
-    if (!subject) {
-      console.error('Subject not found:', subjectId);
-      return res.status(404).json({ message: 'Subject not found' });
+    // Process each question and its subjectId and coSubjectId
+    for (let q of questions) {
+      const {
+        subjectId,
+        coSubjects, // Now it's an array
+        question: questionText,
+        options,
+        correctOption,
+      } = q;
+
+      // Find the subject based on the subjectId
+      const subject = course.subjects.id(subjectId);
+      if (!subject) {
+        console.error('Subject not found:', subjectId);
+        return res.status(404).json({ message: 'Subject not found' });
+      }
+
+      // Log subject and coSubjects to check their structure
+      console.log('Subject:', subject);
+      console.log('Co-Subjects:', subject.coSubjects);
+
+      // Loop through coSubjects array and find each coSubjectId
+      for (let coSubjectId of coSubjects) {
+        const coSubject = subject.coSubjects.id(coSubjectId);
+        if (!coSubject) {
+          console.error('Co-Subject not found:', coSubjectId);
+          return res.status(404).json({ message: 'Co-Subject not found' });
+        }
+
+        // Generate a custom ID for the new question
+        const customId = `Q-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+
+        // Add the question to the coSubject's questions array
+        coSubject.questions.push({
+          myid: customId,
+          question: questionText,
+          options: options,
+          correctOption: correctOption,
+        });
+      }
     }
 
-    const coSubject = subject.coSubjects.id(coSubjectId);
-    if (!coSubject) {
-      console.error('Co-Subject not found:', coSubjectId);
-      return res.status(404).json({ message: 'Co-Subject not found' });
-    }
-
-    questions.forEach((q) => {
-      const customId = `Q-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
-      coSubject.questions.push({
-        myid: customId,
-        question: q.question,
-        options: q.options,
-        correctOption: q.correctOption,
-      });
-    });
-
+    // Save the course after adding the questions
     await course.save();
     console.log('Questions added successfully');
     res.status(201).json({ message: 'Questions added successfully!' });
@@ -214,6 +255,7 @@ exports.getCourses = async (req, res) => {
       _id: course._id,
       name: course.name,
       description: course.description,
+      subjects: course.subjects,
       image: `${req.protocol}://${req.get('host')}/uploads/${course.image}`, // Full URL
     }));
 

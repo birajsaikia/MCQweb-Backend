@@ -21,7 +21,7 @@ router.get('/subject/:courseId', getSubject);
 router.get('/cosubject/:courseId/:subjectId', getCoSubject);
 router.get('/quations/:courseId/:subjectId/:coSubjectId', getQuestions);
 router.post('/addcosubject/:courseId/:subjectId', addCoSubject);
-router.post('/addquestion/:courseId/:subjectId/:coSubjectId', addQuestion);
+router.post('/addquestion', addQuestion);
 router.get('/course', getCourses);
 
 module.exports = router;
