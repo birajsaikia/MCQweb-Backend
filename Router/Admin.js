@@ -9,6 +9,9 @@ const {
   getSubject,
   getCoSubject,
   getQuestions,
+  deleteSubject,
+  deleteCoSubject,
+  deleteQuestion,
 } = require('../controller/CrouseController');
 const upload = require('../Models/upload');
 
@@ -18,10 +21,16 @@ router.post('/add-course', upload.single('image'), addCourse);
 router.delete('/delate-course/:id', delateCourse);
 router.post('/addsubject/:courseId', addSubject);
 router.get('/subject/:courseId', getSubject);
+router.delete('/subject/:courseId/:subjectId', deleteSubject);
 router.get('/cosubject/:courseId/:subjectId', getCoSubject);
+router.delete('/cosubject/:courseId/:subjectId/:coSubjectId', deleteCoSubject);
 router.get('/quations/:courseId/:subjectId/:coSubjectId', getQuestions);
 router.post('/addcosubject/:courseId/:subjectId', addCoSubject);
 router.post('/addquestion', addQuestion);
 router.get('/course', getCourses);
+router.delete(
+  '/quations/:courseId/:subjectId/:coSubjectId/:questionId',
+  deleteQuestion
+);
 
 module.exports = router;

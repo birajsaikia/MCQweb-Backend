@@ -350,3 +350,99 @@ exports.getQuation = async (req, res) => {
       .json({ message: 'Error fetching subjects', error: error.message });
   }
 };
+// ✅ Delete Subject
+exports.deleteSubject = async (req, res) => {
+  try {
+    const { courseId, subjectId } = req.params;
+
+    // Find the course by ID
+    const course = await Course.findById(courseId);
+    if (!course) return res.status(404).json({ message: 'Course not found' });
+
+    // Filter out the subject to be deleted
+    course.subjects = course.subjects.filter(
+      (subject) => subject._id.toString() !== subjectId
+    );
+
+    // Save the updated course document
+    await course.save();
+
+    res.status(200).json({ message: 'Subject deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting subject:', error);
+    res.status(500).json({ message: 'Error deleting subject', error });
+  }
+};
+
+// ✅ Delete Co-Subject
+exports.deleteCoSubject = async (req, res) => {
+  try {
+    const { courseId, subjectId, coSubjectId } = req.params;
+
+    // Find the course by ID
+    const course = await Course.findById(courseId);
+    if (!course) return res.status(404).json({ message: 'Course not found' });
+
+    // Find the subject
+    const subject = course.subjects.id(subjectId);
+    if (!subject) return res.status(404).json({ message: 'Subject not found' });
+
+    // Filter out the co-subject to be deleted
+    subject.coSubjects = subject.coSubjects.filter(
+      (coSubject) => coSubject._id.toString() !== coSubjectId
+    );
+
+    // Save the updated course document
+    await course.save();
+
+    res.status(200).json({ message: 'Co-Subject deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting co-subject:', error);
+    res.status(500).json({ message: 'Error deleting co-subject', error });
+  }
+};
+exports.deleteQuestion = async (req, res) => {
+  try {
+    const { courseId, subjectId, coSubjectId, questionId } = req.params;
+
+    // Fetch the course by ID
+    const course = await Course.findById(courseId);
+    if (!course) {
+      return res.status(404).json({ message: 'Course not found' });
+    }
+
+    // Fetch the subject within the course
+    const subject = course.subjects.id(subjectId);
+    if (!subject) {
+      return res.status(404).json({ message: 'Subject not found' });
+    }
+
+    // Fetch the co-subject within the subject
+    const coSubject1 = subject.coSubjects.id(coSubjectId);
+    if (!coSubject1) {
+      return res.status(404).json({ message: 'Co-subject not found' });
+    }
+
+    // Find the question index
+    const questionIndex = coSubject1.questions.findIndex(
+      (q) => q._id.toString() === questionId
+    );
+
+    if (questionIndex === -1) {
+      return res.status(404).json({ message: 'Question not found' });
+    }
+
+    // Remove the question from the array
+    coSubject1.questions.splice(questionIndex, 1);
+
+    // Save the updated course document
+    await course.save();
+
+    res.status(200).json({ message: 'Question deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting question:', error);
+    res
+      .status(500)
+      .json({ message: 'Error deleting question', error: error.message });
+  }
+};

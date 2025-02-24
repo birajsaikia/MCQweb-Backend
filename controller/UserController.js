@@ -57,7 +57,7 @@ module.exports.register = async function (req, res) {
     const token = jwt.sign(
       { id: user._id, email: user.email, isUser: true },
       'IAmUser',
-      { expiresIn: '1h' }
+      { expiresIn: '168h' }
     );
 
     return res.status(200).json({
@@ -112,7 +112,7 @@ module.exports.login = async (req, res) => {
       { id: user._id, email: user.email, isUser: true }, // Add isAdmin here
       'IAmUser',
       {
-        expiresIn: '1h',
+        expiresIn: '168h',
       }
     );
 
@@ -165,7 +165,7 @@ module.exports.adminlogin = async (req, res) => {
       { id: admin._id, email: admin.email, isAdmin: true }, // Add isAdmin here
       'IAmAdmin',
       {
-        expiresIn: '1h',
+        expiresIn: '168h',
       }
     );
 
