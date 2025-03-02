@@ -12,6 +12,12 @@ const {
   deleteSubject,
   deleteCoSubject,
   deleteQuestion,
+  addPreviousYearPaper,
+  addPreviousYearQuestion,
+  getPreviousYearPapers,
+  getPreviousYearQuestions,
+  deletePreviousYearPaper,
+  deletePreviousYearQuestion,
 } = require('../controller/CrouseController');
 const upload = require('../Models/upload');
 
@@ -28,6 +34,16 @@ router.get('/quations/:courseId/:subjectId/:coSubjectId', getQuestions);
 router.post('/addcosubject/:courseId/:subjectId', addCoSubject);
 router.post('/addquestion', addQuestion);
 router.get('/course', getCourses);
+router.post('/addpreviousyearpaper/:courseId', addPreviousYearPaper);
+router.post(
+  '/addpreviousyearquestion/:courseId/:paperId',
+  addPreviousYearQuestion
+);
+router.get('/getpreviousyearpapers/:courseId', getPreviousYearPapers);
+router.get(
+  '/getpreviousyearquestions/:courseId/:paperId',
+  getPreviousYearQuestions
+);
 router.delete(
   '/quations/:courseId/:subjectId/:coSubjectId/:questionId',
   deleteQuestion

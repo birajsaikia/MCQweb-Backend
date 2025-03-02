@@ -446,3 +446,125 @@ exports.deleteQuestion = async (req, res) => {
       .json({ message: 'Error deleting question', error: error.message });
   }
 };
+
+// ✅ Add a Previous Year Question Paper to a Subject
+exports.addPreviousYearPaper = async (req, res) => {
+  try {
+    const { courseId, subjectId } = req.params;
+    const { name } = req.body;
+
+    const course = await Course.findById(courseId);
+    if (!course) return res.status(404).json({ message: 'Course not found' });
+
+    const newPaper = { name, questions: [] };
+    course.previousyears.push(newPaper);
+
+    await course.save();
+    res
+      .status(201)
+      .json({ message: 'Previous Year Paper added', paper: newPaper });
+  } catch (error) {
+    res.status(500).json({ message: 'Server Error', error });
+  }
+};
+
+// ✅ Add a Question to a Previous Year Paper
+exports.addPreviousYearQuestion = async (req, res) => {
+  try {
+    const { courseId, paperId } = req.params;
+    const { question, options, correctOption } = req.body;
+
+    const course = await Course.findById(courseId);
+    if (!course) return res.status(404).json({ message: 'Course not found' });
+
+    const previousYearPaper = course.previousyears.id(paperId);
+    if (!previousYearPaper)
+      return res.status(404).json({ message: 'Previous Year Paper not found' });
+
+    const newQuestion = { question, options, correctOption };
+    previousYearPaper.questions.push(newQuestion);
+
+    await course.save();
+    res.status(201).json({
+      message: 'Question added to Previous Year Paper',
+      question: newQuestion,
+    });
+  } catch (error) {
+    res.status(500).json({ message: 'Server Error', error });
+  }
+};
+
+// ✅ Get All Previous Year Papers for a Course
+exports.getPreviousYearPapers = async (req, res) => {
+  try {
+    const { courseId } = req.params;
+
+    const course = await Course.findById(courseId);
+    if (!course) return res.status(404).json({ message: 'Course not found' });
+
+    res.status(200).json(course.previousyears);
+  } catch (error) {
+    res.status(500).json({ message: 'Server Error', error });
+  }
+};
+
+// ✅ Get Questions for a Specific Previous Year Paper
+exports.getPreviousYearQuestions = async (req, res) => {
+  try {
+    const { courseId, paperId } = req.params;
+
+    const course = await Course.findById(courseId);
+    if (!course) return res.status(404).json({ message: 'Course not found' });
+
+    const previousYearPaper = course.previousyears.id(paperId);
+    if (!previousYearPaper)
+      return res.status(404).json({ message: 'Previous Year Paper not found' });
+
+    res.status(200).json(previousYearPaper.questions);
+  } catch (error) {
+    res.status(500).json({ message: 'Server Error', error });
+  }
+};
+
+exports.deletePreviousYearPaper = async (req, res) => {
+  try {
+    const { courseId, paperId } = req.params;
+
+    const course = await Course.findById(courseId);
+    if (!course) return res.status(404).json({ message: 'Course not found' });
+
+    course.previousyears = course.previousyears.filter(
+      (paper) => paper._id.toString() !== paperId
+    );
+
+    await course.save();
+    res.status(200).json({ message: 'Previous Year Paper deleted' });
+  } catch (error) {
+    res.status(500).json({ message: 'Server Error', error });
+  }
+};
+
+// ✅ Delete a Question from a Previous Year Paper
+exports.deletePreviousYearQuestion = async (req, res) => {
+  try {
+    const { courseId, paperId, questionId } = req.params;
+
+    const course = await Course.findById(courseId);
+    if (!course) return res.status(404).json({ message: 'Course not found' });
+
+    const previousYearPaper = course.previousyears.id(paperId);
+    if (!previousYearPaper)
+      return res.status(404).json({ message: 'Previous Year Paper not found' });
+
+    previousYearPaper.questions = previousYearPaper.questions.filter(
+      (q) => q._id.toString() !== questionId
+    );
+
+    await course.save();
+    res
+      .status(200)
+      .json({ message: 'Question deleted from Previous Year Paper' });
+  } catch (error) {
+    res.status(500).json({ message: 'Server Error', error });
+  }
+};
