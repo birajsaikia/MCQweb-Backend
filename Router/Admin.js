@@ -18,7 +18,9 @@ const {
   getPreviousYearQuestions,
   deletePreviousYearPaper,
   deletePreviousYearQuestion,
+  getRandomMockTest,
 } = require('../controller/CrouseController');
+const mockTestController = require('../controller/mockTestController');
 const upload = require('../Models/upload');
 
 const router = express.Router();
@@ -40,13 +42,41 @@ router.post(
   addPreviousYearQuestion
 );
 router.get('/getpreviousyearpapers/:courseId', getPreviousYearPapers);
+router.get('/getrandommocktest/:courseId', getRandomMockTest);
 router.get(
   '/getpreviousyearquestions/:courseId/:paperId',
   getPreviousYearQuestions
 );
 router.delete(
+  '/deletepreviousyearpaper/:courseId/:paperId',
+  deletePreviousYearPaper
+);
+router.delete(
   '/quations/:courseId/:subjectId/:coSubjectId/:questionId',
   deleteQuestion
+);
+
+router.post('/addmocktest/:courseId', mockTestController.addMockTest);
+router.delete(
+  '/deletemocktest/:courseId/:mockTestId',
+  mockTestController.deleteMockTest
+);
+
+// ✅ Add/Delete Mock Test Questions
+router.post(
+  '/addmocktestquestion/:courseId/:mockTestId',
+  mockTestController.addMockTestQuestion
+);
+router.delete(
+  '/deletemocktestquestion/:courseId/:mockTestId/:questionId',
+  mockTestController.deleteMockTestQuestion
+);
+
+// ✅ Get Mock Tests & Questions
+router.get('/getmocktests/:courseId', mockTestController.getMockTests);
+router.get(
+  '/getmocktestquestions/:courseId/:mockTestId',
+  mockTestController.getMockTestQuestions
 );
 
 module.exports = router;

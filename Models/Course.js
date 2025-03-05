@@ -13,11 +13,22 @@ const previousYearQuestionSchema = new mongoose.Schema({
   options: [{ type: String, required: true }], // Multiple options
   correctOption: { type: String, required: true }, // Correct answer
 });
+const mocktestQuestionSchema = new mongoose.Schema({
+  question: { type: String, required: true },
+  options: [{ type: String, required: true }], // Multiple options
+  correctOption: { type: String, required: true }, // Correct answer
+});
 
 // Previous Year Schema
 const previousYearSchema = new mongoose.Schema({
   name: { type: String, required: true },
+  year: { type: String, required: true },
   questions: [previousYearQuestionSchema], // Nested questions
+});
+const MocktestSchema = new mongoose.Schema({
+  name: { type: String, required: true },
+  year: { type: String, required: true },
+  questions: [mocktestQuestionSchema], // Nested questions
 });
 
 // Co-Subject Schema (Sub-topic under a Subject)
@@ -39,8 +50,9 @@ const courseSchema = new mongoose.Schema({
   name: { type: String, required: true },
   description: { type: String },
   image: { type: String },
-  subjects: [subjectSchema], // Array of subjects
+  subjects: [subjectSchema],
   previousyears: [previousYearSchema],
+  mockTest: { type: [MocktestSchema], default: [] }, // Ensure mockTest always exists
   createdAt: { type: Date, default: Date.now },
 });
 

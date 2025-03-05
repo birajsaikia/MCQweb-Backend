@@ -14,7 +14,8 @@ exports.addCourse = async (req, res) => {
     const course = new Course({
       name: req.body.name,
       description: req.body.description,
-      image: imageUrl, // Save the full URL in the DB
+      image: imageUrl,
+      mockTest: [], // Save the full URL in the DB
     });
 
     await course.save();
@@ -450,13 +451,14 @@ exports.deleteQuestion = async (req, res) => {
 // ✅ Add a Previous Year Question Paper to a Subject
 exports.addPreviousYearPaper = async (req, res) => {
   try {
-    const { courseId, subjectId } = req.params;
-    const { name } = req.body;
-
+    const { courseId } = req.params;
+    const { name, year } = req.body;
+    console.log('couse id', courseId);
+    console.log('Request body:', req.body);
     const course = await Course.findById(courseId);
     if (!course) return res.status(404).json({ message: 'Course not found' });
 
-    const newPaper = { name, questions: [] };
+    const newPaper = { name, year, questions: [] };
     course.previousyears.push(newPaper);
 
     await course.save();
@@ -465,6 +467,7 @@ exports.addPreviousYearPaper = async (req, res) => {
       .json({ message: 'Previous Year Paper added', paper: newPaper });
   } catch (error) {
     res.status(500).json({ message: 'Server Error', error });
+    console.log(error);
   }
 };
 
@@ -474,23 +477,49 @@ exports.addPreviousYearQuestion = async (req, res) => {
     const { courseId, paperId } = req.params;
     const { question, options, correctOption } = req.body;
 
+    // Validate input
+    if (!question || !options || !correctOption) {
+      return res.status(400).json({ message: 'All fields are required!' });
+    }
+
+    if (!Array.isArray(options) || options.length !== 4) {
+      return res
+        .status(400)
+        .json({ message: 'Options must be an array of 4 items' });
+    }
+
+    if (!options.includes(correctOption)) {
+      return res.status(400).json({
+        message: 'Correct option must be one of the provided options',
+      });
+    }
+
+    // Find the course
     const course = await Course.findById(courseId);
-    if (!course) return res.status(404).json({ message: 'Course not found' });
+    if (!course) {
+      return res.status(404).json({ message: 'Course not found' });
+    }
 
+    // Find the previous year paper inside the course
     const previousYearPaper = course.previousyears.id(paperId);
-    if (!previousYearPaper)
+    if (!previousYearPaper) {
       return res.status(404).json({ message: 'Previous Year Paper not found' });
+    }
 
+    // Create new question object
     const newQuestion = { question, options, correctOption };
     previousYearPaper.questions.push(newQuestion);
 
+    // Save the updated course document
     await course.save();
+
     res.status(201).json({
-      message: 'Question added to Previous Year Paper',
+      message: 'Question added successfully!',
       question: newQuestion,
     });
   } catch (error) {
-    res.status(500).json({ message: 'Server Error', error });
+    console.error('Error adding question:', error);
+    res.status(500).json({ message: 'Server Error', error: error.message });
   }
 };
 
@@ -566,5 +595,41 @@ exports.deletePreviousYearQuestion = async (req, res) => {
       .json({ message: 'Question deleted from Previous Year Paper' });
   } catch (error) {
     res.status(500).json({ message: 'Server Error', error });
+  }
+};
+
+exports.getRandomMockTest = async (req, res) => {
+  try {
+    const { courseId } = req.params;
+    console.log('Request received for mock test:', courseId);
+    const questionLimit = 20; // ✅ Target is 20 questions
+
+    // ✅ Find course and subjects
+    const course = await Course.findById(courseId);
+    if (!course) return res.status(404).json({ error: 'Course not found' });
+
+    // ✅ Collect all questions from coSubjects
+    let allQuestions = [];
+    course.subjects.forEach((subject) => {
+      subject.coSubjects.forEach((coSubject) => {
+        allQuestions = [...allQuestions, ...coSubject.questions]; // Merge questions
+      });
+    });
+
+    // ✅ Shuffle questions
+    const shuffledQuestions = allQuestions.sort(() => Math.random() - 0.5);
+    const selectedQuestions = shuffledQuestions.slice(
+      0,
+      Math.min(allQuestions.length, questionLimit)
+    );
+
+    // ✅ Send available questions (even if less than 20)
+    res.status(200).json({
+      totalAvailable: allQuestions.length, // ✅ Show how many questions exist
+      questions: selectedQuestions,
+    });
+  } catch (error) {
+    console.error('Error generating mock test:', error);
+    res.status(500).json({ error: 'Internal server error' });
   }
 };
