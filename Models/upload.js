@@ -1,23 +1,17 @@
 const multer = require('multer');
+const { CloudinaryStorage } = require('multer-storage-cloudinary');
+const cloudinary = require('../Config/cloudinary'); // Import Cloudinary config
 
-// Multer memory storage configuration
-const storage = multer.memoryStorage(); // Store files in memory instead of disk
-
-// File filter: Accept only images
-const fileFilter = (req, file, cb) => {
-  const allowedTypes = ['image/jpeg', 'image/png', 'image/jpg'];
-  if (allowedTypes.includes(file.mimetype)) {
-    cb(null, true);
-  } else {
-    cb(new Error('Only JPEG, PNG, and JPG files are allowed!'), false);
-  }
-};
-
-// Multer upload instance with memory storage
-const upload = multer({
-  storage,
-  fileFilter,
-  limits: { fileSize: 2 * 1024 * 1024 }, // Limit: 2MB
+// Set up Cloudinary Storage for Multer
+const storage = new CloudinaryStorage({
+  cloudinary: cloudinary,
+  params: {
+    folder: 'uploads', // Change folder name as needed
+    format: async (req, file) => 'png', // Convert all images to PNG
+    public_id: (req, file) => file.originalname.split('.')[0], // Use file name as public_id
+  },
 });
+
+const upload = multer({ storage });
 
 module.exports = upload;

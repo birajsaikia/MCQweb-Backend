@@ -44,6 +44,11 @@ const subjectSchema = new mongoose.Schema({
   coSubjects: [coSubjectSchema], // Nested co-subjects
   // Array of previous year questions
 });
+const noticeSchema = new mongoose.Schema({
+  date: { type: Date, required: true }, // Date of notice
+  description: { type: String, required: true }, // Notice description
+  link: { type: String }, // External link if any
+});
 
 // Course Schema (Main category for subjects)
 const courseSchema = new mongoose.Schema({
@@ -53,6 +58,8 @@ const courseSchema = new mongoose.Schema({
   subjects: [subjectSchema],
   previousyears: [previousYearSchema],
   mockTest: { type: [MocktestSchema], default: [] }, // Ensure mockTest always exists
+  notices: [noticeSchema],
+
   createdAt: { type: Date, default: Date.now },
 });
 

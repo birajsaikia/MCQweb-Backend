@@ -22,6 +22,7 @@ const {
 } = require('../controller/CrouseController');
 const mockTestController = require('../controller/mockTestController');
 const upload = require('../Models/upload');
+const notic = require('./notice');
 
 const router = express.Router();
 
@@ -78,5 +79,7 @@ router.get(
   '/getmocktestquestions/:courseId/:mockTestId',
   mockTestController.getMockTestQuestions
 );
+
+router.use('/notice', notic);
 
 module.exports = router;

@@ -1,21 +1,26 @@
-const Course = require('../Models/Course');
-// ✅ Add a new course
+const cloudinary = require('../Config/cloudinary'); // Import Cloudinary
+const Course = require('../Models/Course'); // Import Course Model
+
 exports.addCourse = async (req, res) => {
   try {
     console.log('Request body:', req.body);
-    console.log('Uploaded file:', req.file); // Check if file is received
+    console.log('Uploaded file:', req.file); // Debugging: Check if file is received
 
     if (!req.file) {
       return res.status(400).json({ message: 'No file uploaded' });
     }
 
-    // Save the full URL to the image
-    const imageUrl = req.file.filename;
+    // ✅ Upload image to Cloudinary
+    const result = await cloudinary.uploader.upload(req.file.path, {
+      folder: 'courses', // Cloudinary folder name
+    });
+
+    // ✅ Save the full Cloudinary URL in the database
     const course = new Course({
       name: req.body.name,
       description: req.body.description,
-      image: imageUrl,
-      mockTest: [], // Save the full URL in the DB
+      image: result.secure_url, // Store full Cloudinary URL
+      mockTest: [],
     });
 
     await course.save();
@@ -27,6 +32,7 @@ exports.addCourse = async (req, res) => {
       .json({ message: 'Error adding course', error: error.message });
   }
 };
+
 exports.delateCourse = async (req, res) => {
   try {
     const courseId = req.params.id;
@@ -257,7 +263,7 @@ exports.getCourses = async (req, res) => {
       name: course.name,
       description: course.description,
       subjects: course.subjects,
-      image: `${req.protocol}://${req.get('host')}/uploads/${course.image}`, // Full URL
+      image: course.image, // Full URL
     }));
 
     res.status(200).json(updatedCourses);
