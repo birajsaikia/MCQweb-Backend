@@ -458,13 +458,13 @@ exports.deleteQuestion = async (req, res) => {
 exports.addPreviousYearPaper = async (req, res) => {
   try {
     const { courseId } = req.params;
-    const { name, year } = req.body;
+    const { name, year, Link } = req.body;
     console.log('couse id', courseId);
     console.log('Request body:', req.body);
     const course = await Course.findById(courseId);
     if (!course) return res.status(404).json({ message: 'Course not found' });
 
-    const newPaper = { name, year, questions: [] };
+    const newPaper = { name, year, Link, questions: [] };
     course.previousyears.push(newPaper);
 
     await course.save();

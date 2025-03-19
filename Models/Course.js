@@ -23,6 +23,7 @@ const mocktestQuestionSchema = new mongoose.Schema({
 const previousYearSchema = new mongoose.Schema({
   name: { type: String, required: true },
   year: { type: String, required: true },
+  Link: { type: String, required: true },
   questions: [previousYearQuestionSchema], // Nested questions
 });
 const MocktestSchema = new mongoose.Schema({
