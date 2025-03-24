@@ -5,12 +5,12 @@ exports.addMockTest = async (req, res) => {
   try {
     const { courseId } = req.params;
     const { name } = req.body;
-
+    console.log(req.body);
     const course = await Course.findById(courseId);
     if (!course) return res.status(404).json({ message: 'Course not found' });
 
     const newMockTest = { name, questions: [] };
-    course.mockTests.push(newMockTest);
+    course.mockTest.push(newMockTest);
     await course.save();
 
     res.status(201).json({
@@ -30,7 +30,7 @@ exports.deleteMockTest = async (req, res) => {
     const course = await Course.findById(courseId);
     if (!course) return res.status(404).json({ message: 'Course not found' });
 
-    course.mockTests = course.mockTests.filter(
+    course.mockTest = course.mockTest.filter(
       (mock) => mock._id.toString() !== mockTestId
     );
     await course.save();
@@ -46,11 +46,11 @@ exports.addMockTestQuestion = async (req, res) => {
   try {
     const { courseId, mockTestId } = req.params;
     const { question, options, correctOption } = req.body;
-
+    console.log(req.body);
     const course = await Course.findById(courseId);
     if (!course) return res.status(404).json({ message: 'Course not found' });
 
-    const mockTest = course.mockTests.id(mockTestId);
+    const mockTest = course.mockTest.id(mockTestId);
     if (!mockTest)
       return res.status(404).json({ message: 'Mock Test not found' });
 
@@ -74,7 +74,7 @@ exports.deleteMockTestQuestion = async (req, res) => {
     const course = await Course.findById(courseId);
     if (!course) return res.status(404).json({ message: 'Course not found' });
 
-    const mockTest = course.mockTests.id(mockTestId);
+    const mockTest = course.mockTest.id(mockTestId);
     if (!mockTest)
       return res.status(404).json({ message: 'Mock Test not found' });
 
@@ -92,14 +92,14 @@ exports.deleteMockTestQuestion = async (req, res) => {
 };
 
 // ✅ 5️⃣ Get All Mock Tests for a Course
-exports.getMockTests = async (req, res) => {
+exports.getmockTest = async (req, res) => {
   try {
     const { courseId } = req.params;
 
     const course = await Course.findById(courseId);
     if (!course) return res.status(404).json({ message: 'Course not found' });
 
-    res.status(200).json(course.mockTests);
+    res.status(200).json(course.mockTest);
   } catch (error) {
     res.status(500).json({ message: 'Server Error', error: error.message });
   }
@@ -113,7 +113,7 @@ exports.getMockTestQuestions = async (req, res) => {
     const course = await Course.findById(courseId);
     if (!course) return res.status(404).json({ message: 'Course not found' });
 
-    const mockTest = course.mockTests.id(mockTestId);
+    const mockTest = course.mockTest.id(mockTestId);
     if (!mockTest)
       return res.status(404).json({ message: 'Mock Test not found' });
 

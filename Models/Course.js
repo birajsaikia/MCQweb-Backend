@@ -28,7 +28,6 @@ const previousYearSchema = new mongoose.Schema({
 });
 const MocktestSchema = new mongoose.Schema({
   name: { type: String, required: true },
-  year: { type: String, required: true },
   questions: [mocktestQuestionSchema], // Nested questions
 });
 

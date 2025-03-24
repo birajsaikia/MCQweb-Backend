@@ -25,7 +25,7 @@ const {
   deleteMockTest,
   addMockTestQuestion,
   deleteMockTestQuestion,
-  getMockTests,
+  getmockTest,
   getMockTestQuestions,
 } = require('../controller/mockTestController');
 const upload = require('../Models/upload');
@@ -75,7 +75,7 @@ router.delete(
 );
 
 // ✅ Get Mock Tests & Questions
-router.get('/getmocktests/:courseId', getMockTests);
+router.get('/getmocktests/:courseId', getmockTest);
 router.get('/getmocktestquestions/:courseId/:mockTestId', getMockTestQuestions);
 
 router.use('/notice', notic);
