@@ -1,4 +1,5 @@
 const User = require('../Models/User'); // Ensure this is correct
+const OTP = require('../Models/OTP');
 const Admin = require('../Models/Admin');
 const sendEmail = require('../Mailer/sandEmail');
 const crypto = require('crypto');
@@ -302,7 +303,7 @@ const otpStore = {}; // Store OTPs temporarily
 module.exports.Forgetpassword = async (req, res) => {
   try {
     const { email } = req.body;
-
+console.log("Run");
     const user = await User.findOne({ email });
     if (!user) {
       return res.status(404).json({ error: 'User not found' });
@@ -311,8 +312,15 @@ module.exports.Forgetpassword = async (req, res) => {
     // Generate 6-digit OTP
     const otp = crypto.randomInt(100000, 999999).toString();
 
+    const storeOTP = new OTP({
+      email, otp
+    });
+
+    // Save the new user to the database
+    await storeOTP.save();
+
     // Store OTP in memory (valid for 5 minutes)
-    otpStore[email] = { otp, expiresAt: Date.now() + 5 * 60 * 1000 };
+    // otpStore[email] = { otp, expiresAt: Date.now() + 5 * 60 * 1000 };
 
     console.log(`Generated OTP for ${email}: ${otp}`); // Debugging purpose
 
